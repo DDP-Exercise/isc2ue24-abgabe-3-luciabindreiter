@@ -7,9 +7,9 @@ function showRandomImageAtStart() {
     // Select all 6 links (<a>) in the thumbnail section. They contain the URLs to the full images.
     const thumbnailLinks = document.querySelectorAll('#thumbnails a');
     // Select a random entry out of these 6.
-    const randomEntry = thumbnailLinks[Math.floor(Math.random() * thumbnailLinks.length)];
+    const randomEntry = thumbnailLinks[getRandomInt(0,5)];
     // Call switchFullImage() with the URL of the random image and the alt attribute of the thumbnail (it contains the description).
-    switchFullImage(randomEntry.getAttribute('href'), randomEntry.getAttribute('alt'));
+    switchFullImage(randomEntry.getAttribute('href'), randomEntry.getAttribute('img alt'));
     // Set a background color (classes .bg-dark and .text-white) to the card-body of your random image (hint: it's the sibling element of your link).
     randomEntry.parentElement.classList.add('bg-dark', 'text-white');
 }
@@ -32,7 +32,7 @@ function prepareLinks() {
             // Add both classes again to the card where the click happened (hint: "this" contains the very <a> element, where the click happened).
             event.currentTarget.parentElement.classList.add('bg-dark', 'text-white');
             // Call switchFullImage() with the URL clicked link and the alt attribute of the thumbnail.
-            switchFullImage(event.currentTarget.getAttribute('href'), event.currentTarget.getElementsByClassName('card shadow-sm'));
+            switchFullImage(event.currentTarget.getAttribute('href'), event.currentTarget.getAttribute('alt'));
             //  - Implement and then call loadNotes() with the key for the current image (hint: the full image's URL makes an easy and unique key).
             loadNotes(event.currentTarget.getAttribute('href'));
             //  - Prevent the default action for the link (we don't want to follow it).
@@ -67,15 +67,16 @@ function storeNotes() {
  */
 function switchFullImage(imageUrl, imageDescription) {
     // Get the <img> element for the full image. Select it by its class or tag name.
-    const fullImage = document.querySelector('#thumbnails');
+    const fullImage = document.querySelector('img');
     // Set its src and alt attributes with the values from the parameters (imageUrl, imageDescription).
-    fullImage.setAttribute("src", imageUrl);
-    fullImage.setAttribute("alt", imageDescription);
+    fullImage.setAttribute('src', imageUrl);
+    fullImage.setAttribute('alt', imageDescription);
+    console.log("Das ist die Image Url: ", imageUrl);
     console.log("Das ist die Image Description: ", imageDescription);
     // Select the <figcaption> element.
     const figCaption = document.getElementsByClassName('figure-caption text-center')[0];
     // Set the description (the one you used for the alt attribute) as its text content.
-    figCaption.innerHTML = imageDescription;
+    figCaption.textContent = imageDescription;
 }
 
 /**
