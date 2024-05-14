@@ -28,13 +28,18 @@ function prepareLinks() {
         link.addEventListener('click', function(event) {
             // The callback of the listener should do the following things:
             // Remove the .bg-dark and .text-white classes from the card where it's currently set.
-            document.querySelector('.card.bg-dark.text-white').classList.remove('bg-dark', 'text-white');
+            const currentCard = document.querySelector('.card.bg-dark.text-white');
+            currentCard.classList.remove('bg-dark', 'text-white');
             // Add both classes again to the card where the click happened (hint: "this" contains the very <a> element, where the click happened).
             event.currentTarget.parentElement.classList.add('bg-dark', 'text-white');
             // Call switchFullImage() with the URL clicked link and the alt attribute of the thumbnail.
             switchFullImage(event.currentTarget.getAttribute('href'), event.currentTarget.getAttribute('alt'));
+
+            const imageUrl = event.currentTarget.getAttribute('href');
+            const altText = event.currentTarget.getAttribute('alt');
+            switchFullImage(imageUrl, altText);
             //  - Implement and then call loadNotes() with the key for the current image (hint: the full image's URL makes an easy and unique key).
-            loadNotes(event.currentTarget.getAttribute('href'));
+            loadNotes(imageUrl);
             //  - Prevent the default action for the link (we don't want to follow it).
             event.preventDefault();
         });
@@ -48,14 +53,15 @@ function storeNotes() {
     // Select the notes field and add a blur listener.
     document.getElementById('notes').addEventListener('blur', function (event) {
         // When the notes field loses focus, store the notes for the current image in the local storage.
-        const notes = event.target.value.trim();
-        const imageUrl = event.currentTarget.getAttribute('src');
+        const notes = document.getElementById('notes').textContent;
+        const fullImage = document.querySelector('#fullImage img');
+        const imageUrl = fullImage.getAttribute('src');
+        localStorage.setItem(imageUrl, notes);
+        console.log('Das sind die notes:', notes, 'Das ist die url:', imageUrl);
         // If the notes field is empty, remove the local storage entry.
         // Choose an appropriate key (hint: the full image's URL makes an easy and unique key).
         if (notes === '') {
             localStorage.removeItem(imageUrl);
-        } else {
-            localStorage.setItem(imageUrl, notes);
         }
     })
 }
@@ -67,14 +73,11 @@ function storeNotes() {
  */
 function switchFullImage(imageUrl, imageDescription) {
     // Get the <img> element for the full image. Select it by its class or tag name.
-    const fullImage = document.querySelector('img');
+    const fullImage = document.querySelector('#fullImage img');
     // Set its src and alt attributes with the values from the parameters (imageUrl, imageDescription).
     fullImage.setAttribute('src', imageUrl);
-    fullImage.setAttribute('alt', imageDescription);
-    console.log("Das ist die Image Url: ", imageUrl);
-    console.log("Das ist die Image Description: ", imageDescription);
     // Select the <figcaption> element.
-    const figCaption = document.getElementsByClassName('figure-caption text-center')[0];
+    const figCaption = document.getElementsByClassName('figure-caption text-center');
     // Set the description (the one you used for the alt attribute) as its text content.
     figCaption.textContent = imageDescription;
 }
@@ -93,7 +96,7 @@ function loadNotes(key) {
     if (notes !== null) {
         notesField.value = notes;
     } else {
-        notesField.value = 'Enter your notes here!';
+        notesField.textContent = 'Enter your notes here!';
     }
 }
 
