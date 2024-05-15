@@ -9,7 +9,7 @@ function showRandomImageAtStart() {
     // Select a random entry out of these 6.
     const randomEntry = thumbnailLinks[getRandomInt(0,5)];
     // Call switchFullImage() with the URL of the random image and the alt attribute of the thumbnail (it contains the description).
-    switchFullImage(randomEntry.getAttribute('href'), randomEntry.getAttribute('img alt'));
+    switchFullImage(randomEntry.getAttribute('href'), randomEntry.querySelector('img').getAttribute('alt'));
     // Set a background color (classes .bg-dark and .text-white) to the card-body of your random image (hint: it's the sibling element of your link).
     randomEntry.parentElement.classList.add('bg-dark', 'text-white');
 }
@@ -26,25 +26,29 @@ function prepareLinks() {
     // Set an event listener for the click event on every <a> element.
     allLinks.forEach(link => {
         link.addEventListener('click', function(event) {
-            // The callback of the listener should do the following things:
+            // Prevent the default action for the link (we don't want to follow it).
+            event.preventDefault();
+
             // Remove the .bg-dark and .text-white classes from the card where it's currently set.
             const currentCard = document.querySelector('.card.bg-dark.text-white');
-            currentCard.classList.remove('bg-dark', 'text-white');
+            if (currentCard) {
+                currentCard.classList.remove('bg-dark', 'text-white');
+            }
+
             // Add both classes again to the card where the click happened (hint: "this" contains the very <a> element, where the click happened).
             event.currentTarget.parentElement.classList.add('bg-dark', 'text-white');
-            // Call switchFullImage() with the URL clicked link and the alt attribute of the thumbnail.
-            switchFullImage(event.currentTarget.getAttribute('href'), event.currentTarget.getAttribute('alt'));
 
+            // Call switchFullImage() with the URL clicked link and the alt attribute of the thumbnail.
             const imageUrl = event.currentTarget.getAttribute('href');
-            const altText = event.currentTarget.getAttribute('alt');
+            const altText = event.currentTarget.querySelector('img').getAttribute('alt');
             switchFullImage(imageUrl, altText);
-            //  - Implement and then call loadNotes() with the key for the current image (hint: the full image's URL makes an easy and unique key).
+
+            // Load notes for the current image.
             loadNotes(imageUrl);
-            //  - Prevent the default action for the link (we don't want to follow it).
-            event.preventDefault();
         });
     });
 }
+
 
 /**
  * Stores or deletes the updated notes of an image after they have been changed.
@@ -54,16 +58,13 @@ function storeNotes() {
     document.getElementById('notes').addEventListener('blur', function (event) {
         // When the notes field loses focus, store the notes for the current image in the local storage.
         const notes = document.getElementById('notes').textContent;
-        const fullImage = document.querySelector('#fullImage img');
-        const imageUrl = fullImage.getAttribute('src');
-        localStorage.setItem(imageUrl, notes);
-        console.log('Das sind die notes:', notes, 'Das ist die url:', imageUrl);
-        // If the notes field is empty, remove the local storage entry.
-        // Choose an appropriate key (hint: the full image's URL makes an easy and unique key).
+        const imageUrl = document.querySelector('#fullImage img').getAttribute('src');
         if (notes === '') {
             localStorage.removeItem(imageUrl);
+        } else {
+            localStorage.setItem(imageUrl, notes);
         }
-    })
+    });
 }
 /**
  * Switches the full image in the <figure> element to the one specified in the parameter. Also updates the image's alt
@@ -77,9 +78,10 @@ function switchFullImage(imageUrl, imageDescription) {
     // Set its src and alt attributes with the values from the parameters (imageUrl, imageDescription).
     fullImage.setAttribute('src', imageUrl);
     // Select the <figcaption> element.
-    const figCaption = document.getElementsByClassName('figure-caption text-center');
+    const figCaption = document.querySelector('#fullImage figcaption');
     // Set the description (the one you used for the alt attribute) as its text content.
     figCaption.textContent = imageDescription;
+    console.log(imageDescription)
 }
 
 /**
@@ -94,7 +96,7 @@ function loadNotes(key) {
     // If there's an entry, set the notes field's HTML content to the local storage's content.
     // If there's no entry, set the default text "Enter your notes here!".
     if (notes !== null) {
-        notesField.value = notes;
+        notesField.textContent = notes;
     } else {
         notesField.textContent = 'Enter your notes here!';
     }
